@@ -35,3 +35,14 @@ class JobModel(banco.Model):
     def save_job(self):
         banco.session.add(self)
         banco.session.commit()
+        
+    def update_job(self, nome, estrelas, diaria, cidade):
+        self.nome = nome
+        self.estrelas = estrelas
+        self.diaria = diaria
+        self.cidade = cidade
+        
+    def delete_job(self):
+        banco.session.delete(self)
+        banco.session.commit()    
+        

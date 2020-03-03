@@ -28,14 +28,14 @@ jobs = [
 
 class Jobs(Resource):
     def get(self):
-        return {'jobs': jobs}   
+        return {'jobs': [job.json() for job in JobModel.query.all()]} #Equivalente - SELECT * FROM JOBS  
 
 class Job(Resource):
     atributos = reqparse.RequestParser()
-    atributos.add_argument('nome')
-    atributos.add_argument('estrelas')
-    atributos.add_argument('diaria')
-    atributos.add_argument('cidade')
+    atributos.add_argument('nome', type=str, required=True, help="O campo 'nome' é de preenchimento obrigatório.")
+    atributos.add_argument('estrelas', type=float)
+    atributos.add_argument('diaria', type=float, required=True, help="O campo 'diaria' é de preenchimento obrigatório.")
+    atributos.add_argument('cidade', type=str, required=True, help="O campo 'cidade' é de preenchimento obrigatório.")
     
     def get (self, job_id):
         job = JobModel.find_job(job_id)
@@ -50,24 +50,30 @@ class Job(Resource):
             return {"message": "Esse id de job '({})' já existe.".format(job_id)}, 400 #Bad Request
         dados = Job.atributos.parse_args()
         job = JobModel(job_id, **dados)  
-        job.save_job()
-        return job.json()
         
-         
+        try:
+            job.save_job()
+        
+        except: 
+            return {'message': 'Ocorreu um erro interno ao salvar as informações'}
+        return job.json()
+
 
     def put (self, job_id):
-        dados = Job.atributos.parse_args()
-        job_objeto = JobModel(job_id, **dados)
-        novo_job = job_objeto.json()
-        job = Job.find_job(job_id)   
-        if job:
-            job.update(novo_job) 
-            return novo_job, 200 # OK   
-        jobs.append(novo_job)    
-        return novo_job, 201 #criado
+        dados = Job.atributos.parse_args()        
+        job_encontrado = JobModel.find_job(job_id)   
+        if job_encontrado:
+            job_encontrado.update_hotel(**dados)
+            job_encontrado.save_job()
+            return job_encontrado.json(), 200 # OK  
+        job = JobModel(job_id, **dados) 
+        job.save_job()
+        return job.json(), 201 #criado
         
     
     def delete (self, job_id):
-        global jobs
-        jobs = [job for job in jobs if job['job_id'] != job_id]
-        return {'message': 'Job deletado.'}    
+        job = JobModel.find_job(job_id)
+        if job:
+            job.delete_job()
+            return {'message': 'Job deletado.'}    
+        return {'message': 'Job não encontrado.'}, 404 #not found
