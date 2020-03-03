@@ -33,37 +33,47 @@ class Jobs(Resource):
     
 
 class Job(Resource):
-    def get (self, job_id):
+    argumentos = reqparse.RequestParser()
+    argumentos.add_argument('nome')
+    argumentos.add_argument('estrelas')
+    argumentos.add_argument('diaria')
+    argumentos.add_argument('cidade')
+        
+    def find_job(job_id):   
         for job in jobs:
             if job ['job_id'] == job_id:
-                return job
+                return job    
+        return None
+    
+              
+    def get (self, job_id):
+        job = Job.find_job(job_id)
+        if job:
+            return job
         return {'message': 'Job não encontrado.'}, 404 # not found  
             
               
     def post (self, job_id):
-        argumentos = reqparse.RequestParser()
-        argumentos.add_argument('nome')
-        argumentos.add_argument('estrelas')
-        argumentos.add_argument('diaria')
-        argumentos.add_argument('cidade')
-        
-        
-        dados = argumentos.parse_args()
-        
-        novo_job = {
-            'job_id': job_id,
-            'nome': dados['nome'],
-            'estrelas': dados['estrelas'],
-            'diaria': dados['diaria'],
-            'cidade': dados['cidade']
-        }
+
+        dados = Job.argumentos.parse_args()
+        novo_job = {'job_id': job_id, **dados}
         
         jobs.append(novo_job)
         return novo_job, 200        
 
     
     def put (self, job_id):
-        pass    
+        
+        dados = Job.argumentos.parse_args()
+        novo_job = {'job_id': job_id, **dados}
+        
+        job = Job.find_job(job_id)   
+        if job:
+            job.update(novo_job) 
+            return novo_job, 200 # OK   
+        jobs.append(novo_job)    
+        return novo_job, 201 #criado
+        
     
     def delete (self, job_id):
         pass      
