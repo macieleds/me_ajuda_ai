@@ -76,4 +76,6 @@ class Job(Resource):
         
     
     def delete (self, job_id):
-        pass      
+        global jobs
+        jobs = [job for job in jobs if job['job_id'] != job_id]
+        return {'message': 'Job deletado.'}    
