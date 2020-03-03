@@ -1,4 +1,4 @@
-from flask_restful import Resource
+from flask_restful import Resource, reqparse
 
 
 jobs = [
@@ -41,7 +41,26 @@ class Job(Resource):
             
               
     def post (self, job_id):
-        pass    
+        argumentos = reqparse.RequestParser()
+        argumentos.add_argument('nome')
+        argumentos.add_argument('estrelas')
+        argumentos.add_argument('diaria')
+        argumentos.add_argument('cidade')
+        
+        
+        dados = argumentos.parse_args()
+        
+        novo_job = {
+            'job_id': job_id,
+            'nome': dados['nome'],
+            'estrelas': dados['estrelas'],
+            'diaria': dados['diaria'],
+            'cidade': dados['cidade']
+        }
+        
+        jobs.append(novo_job)
+        return novo_job, 200        
+
     
     def put (self, job_id):
         pass    
