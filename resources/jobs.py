@@ -36,27 +36,24 @@ class Job(Resource):
     atributos.add_argument('estrelas')
     atributos.add_argument('diaria')
     atributos.add_argument('cidade')
-        
-    def find_job(job_id):   
-        for job in jobs:
-            if job ['job_id'] == job_id:
-                return job    
-        return None
     
-              
     def get (self, job_id):
-        job = Job.find_job(job_id)
+        job = JobModel.find_job(job_id)
         if job:
-            return job
+            return job.json()
         return {'message': 'Job não encontrado.'}, 404 # not found  
             
               
     def post (self, job_id):
+        
+        if JobModel.find_job(job_id):
+            return {"message": "Esse id de job '({})' já existe.".format(job_id)}, 400 #Bad Request
         dados = Job.atributos.parse_args()
-        job_objeto = JobModel(job_id, **dados)  
-        novo_job = job_objeto.json()    
-        jobs.append(novo_job)
-        return novo_job, 200        
+        job = JobModel(job_id, **dados)  
+        job.save_job()
+        return job.json()
+        
+         
 
     def put (self, job_id):
         dados = Job.atributos.parse_args()
