@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-
+from models.job import JobModel
 
 jobs = [
     {
@@ -28,16 +28,14 @@ jobs = [
 
 class Jobs(Resource):
     def get(self):
-        return {'jobs': jobs}
-    
-    
+        return {'jobs': jobs}   
 
 class Job(Resource):
-    argumentos = reqparse.RequestParser()
-    argumentos.add_argument('nome')
-    argumentos.add_argument('estrelas')
-    argumentos.add_argument('diaria')
-    argumentos.add_argument('cidade')
+    atributos = reqparse.RequestParser()
+    atributos.add_argument('nome')
+    atributos.add_argument('estrelas')
+    atributos.add_argument('diaria')
+    atributos.add_argument('cidade')
         
     def find_job(job_id):   
         for job in jobs:
@@ -54,19 +52,16 @@ class Job(Resource):
             
               
     def post (self, job_id):
-
-        dados = Job.argumentos.parse_args()
-        novo_job = {'job_id': job_id, **dados}
-        
+        dados = Job.atributos.parse_args()
+        job_objeto = JobModel(job_id, **dados)  
+        novo_job = job_objeto.json()    
         jobs.append(novo_job)
         return novo_job, 200        
 
-    
     def put (self, job_id):
-        
-        dados = Job.argumentos.parse_args()
-        novo_job = {'job_id': job_id, **dados}
-        
+        dados = Job.atributos.parse_args()
+        job_objeto = JobModel(job_id, **dados)
+        novo_job = job_objeto.json()
         job = Job.find_job(job_id)   
         if job:
             job.update(novo_job) 
