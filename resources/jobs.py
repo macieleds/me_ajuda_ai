@@ -29,7 +29,7 @@ class Job(Resource):
         try:
             job.save_job()
         except: 
-            return {'message': 'Ocorreu um erro interno ao salvar as informações'}, #500 Internal Server Error
+            return {'message': 'Ocorreu um erro interno ao salvar as informações'}, 500 # Internal Server Error
         return job.json()
 
 
