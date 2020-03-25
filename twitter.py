@@ -11,8 +11,7 @@ class Twitter():
         response = self.api.PostUpdate("Teste Post")
 
 
-    if __name__ == "__main__":
-        tw = Twitter()
+    if __name__ == "__main__":                
         tw.post_msg()
-
+tw = Twitter()
     
